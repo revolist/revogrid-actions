@@ -66,6 +66,8 @@ runs:
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release ${{ steps.get_version.outputs.version }}
+        draft: true
+        prerelease: true
         body: |
           ## Changelog
           ${{ steps.release_notes.outputs.release_notes }}
