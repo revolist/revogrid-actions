@@ -14,11 +14,13 @@ runs:
     - name: Get current version
       id: get_version
       run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+      shell: bash
 
       # Get current branch name
     - name: Get current branch name
       id: get_branch
       run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+      shell: bash
 
     - name: Compare versions
       id: version_check
@@ -36,6 +38,7 @@ runs:
           echo "Version has changed."
           echo "::set-output name=changed::true"
         fi
+      shell: bash
 
     - name: Stop if version has not changed
       if: steps.version_check.outputs.changed == 'false'
@@ -47,6 +50,7 @@ runs:
         git clone https://github.com/revolist/revogrid.git main-repo
         RELEASE_NOTES=$(jq -r '.changelog' main-repo/package.json)
         echo "::set-output name=release_notes::$RELEASE_NOTES"
+      shell: bash
 
     - name: Create GitHub release
       if: steps.version_check.outputs.changed == 'true'
@@ -60,3 +64,4 @@ runs:
           ## Changelog
           ${{ steps.release_notes.outputs.release_notes }}
           $(jq -r '.changelog' ./package.json)
+      shell: bash
