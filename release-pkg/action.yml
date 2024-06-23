@@ -46,37 +46,29 @@ runs:
       run: echo "Version has not changed, stopping job."
       shell: bash
 
-    - name: Install conventional releaser
-      run: npm i -g conventional-github-releaser
-      shell: bash
-    
-    - name: Release
+    - name: Collect release info from main repo
       if: steps.version_check.outputs.changed == 'true'
-      run: conventional-github-releaser -p angular -url=https://github.com/revolist/revogrid
-      env:
-        CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ inputs.token }}
+      run: |
+        sudo apt-get install jq
+        git clone --branch ${{ steps.get_branch.outputs.branch }} https://github.com/revolist/revogrid.git main-repo
+        cd main-repo
+        git fetch --tags
+        git checkout "v${{ steps.get_version.outputs.version }}"
+        RELEASE_NOTES=$(jq -r '.changelog' package.json)
+        echo "::set-output name=release_notes::$RELEASE_NOTES"
       shell: bash
 
-    # - name: Collect release info from main repo
-    #   if: steps.version_check.outputs.changed == 'true'
-    #   run: |
-    #     git clone https://github.com/revolist/revogrid.git main-repo
-    #     RELEASE_NOTES=$(jq -r '.changelog' main-repo/package.json)
-    #     echo "::set-output name=release_notes::$RELEASE_NOTES"
-    #   shell: bash
-      
-
-    # - name: Create GitHub release
-    #   if: steps.version_check.outputs.changed == 'true'
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ inputs.token }}
-    #   with:
-    #     tag_name: v${{ steps.get_version.outputs.version }}
-    #     release_name: Release ${{ steps.get_version.outputs.version }}
-    #     draft: true
-    #     prerelease: true
-    #     body: |
-    #       ## Changelog
-    #       ${{ steps.release_notes.outputs.release_notes }}
+    - name: Create GitHub release
+      if: steps.version_check.outputs.changed == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        release_name: Release ${{ steps.get_version.outputs.version }}
+        draft: true
+        prerelease: true
+        body: |
+          ## Changelog
+          ${{ steps.release_notes.outputs.release_notes }}
           
