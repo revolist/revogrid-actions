@@ -48,6 +48,7 @@ runs:
 
     - name: Install conventional releaser
       run: npm i -g conventional-github-releaser
+      shell: bash
     
     - name: Release
       run: conventional-github-releaser -p angular
