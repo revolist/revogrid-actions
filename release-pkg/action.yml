@@ -54,6 +54,7 @@ runs:
       run: conventional-github-releaser -p angular
       env:
         CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ inputs.token }}
+      shell: bash
 
     # - name: Collect release info from main repo
     #   if: steps.version_check.outputs.changed == 'true'
