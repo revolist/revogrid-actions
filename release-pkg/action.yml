@@ -72,4 +72,3 @@ runs:
           ## Changelog
           ${{ steps.release_notes.outputs.release_notes }}
           $(jq -r '.changelog' ./package.json)
-      shell: bash
