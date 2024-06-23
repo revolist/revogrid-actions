@@ -34,10 +34,10 @@ runs:
         git fetch --tags
         if git rev-parse "v$VERSION" >/dev/null 2>&1; then
           echo "Tag v$VERSION changed."
-          echo "::set-output name=changed::true"
+          echo "::set-output name=changed::false"
         else
           echo "Tag v$VERSION does not exist."
-          echo "::set-output name=changed::false"
+          echo "::set-output name=changed::true"
         fi
       shell: bash
 
