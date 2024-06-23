@@ -51,7 +51,9 @@ runs:
       shell: bash
     
     - name: Release
-      run: conventional-github-releaser -p angular -token ${{ inputs.token }} -url=https://github.com/revolist/revogrid
+      run: conventional-github-releaser -p angular -url=https://github.com/revolist/revogrid
+      env:
+        CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ inputs.token }}
       shell: bash
 
     # - name: Collect release info from main repo
