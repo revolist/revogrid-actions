@@ -1,8 +1,5 @@
 name: Release package version
 description: Release package version based on package.json
-
-inputs:
-
 runs:
   using: 'composite'
   steps:
