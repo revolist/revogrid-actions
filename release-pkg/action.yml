@@ -43,6 +43,7 @@ runs:
     - name: Stop if version has not changed
       if: steps.version_check.outputs.changed == 'false'
       run: echo "Version has not changed, stopping job."
+      shell: bash
 
     - name: Collect release info from main repo
       if: steps.version_check.outputs.changed == 'true'
