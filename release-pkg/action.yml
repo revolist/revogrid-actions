@@ -27,30 +27,27 @@ runs:
       run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
       shell: bash
 
-# Check if version is already released
-    - name: Check if version is already released
-      id: check_release
+    - name: Check if version tag changed
+      id: version_check
       run: |
         VERSION=${{ steps.get_version.outputs.version }}
-        RELEASE_EXISTS=$(curl -H "Authorization: token ${{ inputs.token }}" -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/releases | \
-          jq -r --arg VERSION "v$VERSION" '.[] | select(.tag_name == $VERSION) | .tag_name')
-        if [ "$RELEASE_EXISTS" == "v$VERSION" ]; then
-          echo "Version v$VERSION is already released."
-          echo "::set-output name=released::true"
+        git fetch --tags
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Tag v$VERSION changed."
+          echo "::set-output name=changed::true"
         else
-          echo "Version v$VERSION is not released yet."
-          echo "::set-output name=released::false"
+          echo "Tag v$VERSION does not exist."
+          echo "::set-output name=changed::false"
         fi
       shell: bash
 
     - name: Stop if version has not changed
-      if: steps.version_check.outputs.released == 'false'
+      if: steps.version_check.outputs.changed == 'false'
       run: echo "Version has not changed, stopping job."
       shell: bash
 
     - name: Collect release info from main repo
-      if: steps.version_check.outputs.released == 'true'
+      if: steps.version_check.outputs.changed == 'true'
       run: |
         git clone https://github.com/revolist/revogrid.git main-repo
         RELEASE_NOTES=$(jq -r '.changelog' main-repo/package.json)
@@ -58,7 +55,7 @@ runs:
       shell: bash
 
     - name: Create GitHub release
-      if: steps.version_check.outputs.released == 'true'
+      if: steps.version_check.outputs.changed == 'true'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
