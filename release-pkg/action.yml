@@ -1,5 +1,10 @@
 name: Release package version
 description: Release package version based on package.json
+
+inputs:
+  token:
+    type: string
+
 runs:
   using: "composite"
   steps:
@@ -57,7 +62,7 @@ runs:
       if: steps.version_check.outputs.changed == 'true'
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release ${{ steps.get_version.outputs.version }}
