@@ -1,63 +1,62 @@
 name: Release package version
 description: Release package version based on package.json
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-  - uses: actions/checkout@v4
-      
-      # Set up Node.js
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
+    - uses: actions/checkout@v4
 
-      # Check if package.json version has changed
-      - name: Get current version
-        id: get_version
-        run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
-  
-       # Get current branch name
-      - name: Get current branch name
-        id: get_branch
-        run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+    # Set up Node.js
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
 
+    # Check if package.json version has changed
+    - name: Get current version
+      id: get_version
+      run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
 
-      - name: Compare versions
-        id: version_check
-        run: |
-          CURRENT_BRANCH=${{ steps.get_branch.outputs.branch }}
-          git fetch origin $CURRENT_BRANCH:refs/remotes/origin/$CURRENT_BRANCH
-          PREVIOUS_VERSION=$(git show origin/$CURRENT_BRANCH:package.json | jq -r .version)
-          CURRENT_VERSION=${{ steps.get_version.outputs.version }}
-          echo "Previous version: $PREVIOUS_VERSION"
-          echo "Current version: $CURRENT_VERSION"
-          if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
-            echo "Version has not changed."
-            echo "::set-output name=changed::false"
-          else
-            echo "Version has changed."
-            echo "::set-output name=changed::true"
-          fi
+      # Get current branch name
+    - name: Get current branch name
+      id: get_branch
+      run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
 
-      - name: Stop if version has not changed
-        if: steps.version_check.outputs.changed == 'false'
-        run: echo "Version has not changed, stopping job."
+    - name: Compare versions
+      id: version_check
+      run: |
+        CURRENT_BRANCH=${{ steps.get_branch.outputs.branch }}
+        git fetch origin $CURRENT_BRANCH:refs/remotes/origin/$CURRENT_BRANCH
+        PREVIOUS_VERSION=$(git show origin/$CURRENT_BRANCH:package.json | jq -r .version)
+        CURRENT_VERSION=${{ steps.get_version.outputs.version }}
+        echo "Previous version: $PREVIOUS_VERSION"
+        echo "Current version: $CURRENT_VERSION"
+        if [ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]; then
+          echo "Version has not changed."
+          echo "::set-output name=changed::false"
+        else
+          echo "Version has changed."
+          echo "::set-output name=changed::true"
+        fi
 
-      - name: Collect release info from main repo
-        if: steps.version_check.outputs.changed == 'true'
-        run: |
-          git clone https://github.com/revolist/revogrid.git main-repo
-          RELEASE_NOTES=$(jq -r '.changelog' main-repo/package.json)
-          echo "::set-output name=release_notes::$RELEASE_NOTES"
+    - name: Stop if version has not changed
+      if: steps.version_check.outputs.changed == 'false'
+      run: echo "Version has not changed, stopping job."
 
-      - name: Create GitHub release
-        if: steps.version_check.outputs.changed == 'true'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: Release ${{ steps.get_version.outputs.version }}
-          body: |
-            ## Changelog
-            ${{ steps.release_notes.outputs.release_notes }}
-            $(jq -r '.changelog' ./package.json)
+    - name: Collect release info from main repo
+      if: steps.version_check.outputs.changed == 'true'
+      run: |
+        git clone https://github.com/revolist/revogrid.git main-repo
+        RELEASE_NOTES=$(jq -r '.changelog' main-repo/package.json)
+        echo "::set-output name=release_notes::$RELEASE_NOTES"
+
+    - name: Create GitHub release
+      if: steps.version_check.outputs.changed == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        release_name: Release ${{ steps.get_version.outputs.version }}
+        body: |
+          ## Changelog
+          ${{ steps.release_notes.outputs.release_notes }}
+          $(jq -r '.changelog' ./package.json)
