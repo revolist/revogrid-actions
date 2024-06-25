@@ -49,12 +49,11 @@ runs:
     - name: Collect release info from main repo
       if: steps.version_check.outputs.changed == 'true'
       run: |
-        sudo apt-get install jq
         git clone --branch ${{ steps.get_branch.outputs.branch }} https://github.com/revolist/revogrid.git main-repo
         cd main-repo
         git fetch --tags
         git checkout "v${{ steps.get_version.outputs.version }}"
-        RELEASE_NOTES=$(jq -r 'CHANGELOG.md' package.json)
+        RELEASE_NOTES=$(cat CHANGELOG.md)
         echo "$RELEASE_NOTES" >> $GITHUB_STEP_SUMMARY
         echo "release_notes=$RELEASE_NOTES" >> $GITHUB_OUTPUT
       shell: bash
