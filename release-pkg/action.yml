@@ -64,6 +64,7 @@ runs:
         RELEASE_NOTES=$(cat CHANGELOG.md)
         echo "$RELEASE_NOTES" >> $GITHUB_STEP_SUMMARY
         echo "release_notes=$RELEASE_NOTES" >> $GITHUB_OUTPUT
+        cd ..
       shell: bash
 
     - name: Create GitHub release
