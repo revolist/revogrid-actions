@@ -2,6 +2,14 @@ name: Release package version
 description: Release package version based on package.json
 
 inputs:
+  draft:
+    type: boolean
+    default: false
+    description: "Draft release"
+  prerelease:
+    type: boolean
+    default: false
+    description: "Prerelease release"
   token:
     type: string
 
@@ -66,8 +74,8 @@ runs:
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release ${{ steps.get_version.outputs.version }}
-        draft: true
-        prerelease: true
+        draft: ${{ inputs.draft }}
+        prerelease: ${{ inputs.prerelease }}
         body: |
           ## Changelog
           ${{ steps.release_notes.outputs.release_notes }}
