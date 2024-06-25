@@ -18,13 +18,13 @@ runs:
     # Check if package.json version has changed
     - name: Get current version
       id: get_version
-      run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       shell: bash
 
       # Get current branch name
     - name: Get current branch name
       id: get_branch
-      run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+      run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Check if version tag changed
@@ -34,10 +34,10 @@ runs:
         git fetch --tags
         if git rev-parse "v$VERSION" >/dev/null 2>&1; then
           echo "Tag v$VERSION changed."
-          echo "::set-output name=changed::false"
+          echo "changed=false" >> $GITHUB_OUTPUT
         else
           echo "Tag v$VERSION does not exist."
-          echo "::set-output name=changed::true"
+          echo "changed=true" >> $GITHUB_OUTPUT
         fi
       shell: bash
 
@@ -55,7 +55,8 @@ runs:
         git fetch --tags
         git checkout "v${{ steps.get_version.outputs.version }}"
         RELEASE_NOTES=$(jq -r '.changelog' package.json)
-        echo "::set-output name=release_notes::$RELEASE_NOTES"
+        echo "$RELEASE_NOTES" >> $GITHUB_STEP_SUMMARY
+        echo "release_notes=$RELEASE_NOTES" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Create GitHub release
