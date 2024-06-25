@@ -59,9 +59,6 @@ runs:
         cd main-repo
         git fetch --tags
         git checkout "v${{ steps.get_version.outputs.version }}"
-        RELEASE_NOTES=$(cat CHANGELOG.md)
-        echo "$RELEASE_NOTES" >> $GITHUB_STEP_SUMMARY
-        echo "release_notes=$RELEASE_NOTES" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Create GitHub release
