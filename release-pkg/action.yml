@@ -54,7 +54,7 @@ runs:
         cd main-repo
         git fetch --tags
         git checkout "v${{ steps.get_version.outputs.version }}"
-        RELEASE_NOTES=$(jq -r '.changelog' package.json)
+        RELEASE_NOTES=$(jq -r 'CHANGELOG.md' package.json)
         echo "$RELEASE_NOTES" >> $GITHUB_STEP_SUMMARY
         echo "release_notes=$RELEASE_NOTES" >> $GITHUB_OUTPUT
       shell: bash
