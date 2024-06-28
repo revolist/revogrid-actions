@@ -14,72 +14,72 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Update CHANGELOG.md with release notes
+    - name: Update CHANGELOG.md
+      run: |
+        RELEASE_NOTES="${{ github.event.release.body }}"
+        TAG_NAME="${{ github.event.release.tag_name }}"
+        echo -e "## $TAG_NAME\n\n$RELEASE_NOTES\n" >> CHANGELOG.md
+      shell: bash
+
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add CHANGELOG.md
+        git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
+        git push
+      shell: bash
     # Setup to publish to npm Packages
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
+        registry-url: "https://registry.npmjs.org"
 
-      # Checout submodule
-      - name: Checkout submodules
-        run: git submodule update --init --remote --recursive
-        shell: bash
+    # Checout submodule
+    - name: Checkout submodules
+      run: git submodule update --init --remote --recursive
+      shell: bash
 
-      - run: npm ci
-        shell: bash
+    - run: npm ci
+      shell: bash
 
-      # Build
-      - run: npm run build
-        shell: bash
-      
-      # Determine if this is a pre-release
-      - name: Check if pre-release
-        id: tag
-        run: |
-          if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
-            echo "::set-output name=TAG::prerelease"
-          else
-            echo "::set-output name=TAG::latest"
-          fi
-        shell: bash
+    # Build
+    - run: npm run build
+      shell: bash
 
-      # Update CHANGELOG.md with release notes
-      - name: Update CHANGELOG.md
-        run: |
-          RELEASE_NOTES="${{ github.event.release.body }}"
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          echo -e "## $TAG_NAME\n\n$RELEASE_NOTES\n" >> CHANGELOG.md
-        shell: bash
-      - name: Commit and push changes
-        env:
-          GITHUB_TOKEN: ${{ inputs.token }}
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
-          git push
-        shell: bash
+    # Determine if this is a pre-release
+    - name: Check if pre-release
+      id: tag
+      run: |
+        if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+          echo "::set-output name=TAG::prerelease"
+        else
+          echo "::set-output name=TAG::latest"
+        fi
+      shell: bash
 
-      # # Publish to npm
-      # - name: Publish to npm
-      #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+    # # Publish to npm
+    # - name: Publish to npm
+    #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
+    #   env:
+    #     NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
-      # # Setup to publish to GitHub Packages
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     registry-url: 'https://npm.pkg.github.com'
-      #     # Defaults to the user or organization that owns the workflow file
-      #     scope: '@revolist'
+    # # Setup to publish to GitHub Packages
+    # - uses: actions/setup-node@v4
+    #   with:
+    #     registry-url: 'https://npm.pkg.github.com'
+    #     # Defaults to the user or organization that owns the workflow file
+    #     scope: '@revolist'
 
-      # # Publish to GitHub Packages
-      # - name: Publish to GitHub Packages
-      #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ inputs.token }}
+    # # Publish to GitHub Packages
+    # - name: Publish to GitHub Packages
+    #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
+    #   env:
+    #     NODE_AUTH_TOKEN: ${{ inputs.token }}
 
-        # Update packages with new version
-      # - name: Sync packages
-      #   run: npm run package:update
+    # Update packages with new version
+    # - name: Sync packages
+    #   run: npm run package:update
