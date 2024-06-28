@@ -117,4 +117,6 @@ runs:
 
     - name: Update packages with new version
       run: npm run package:update
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
