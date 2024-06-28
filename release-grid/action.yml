@@ -23,8 +23,10 @@ runs:
       # Checout submodule
       - name: Checkout submodules
         run: git submodule update --init --remote --recursive
+        shell: bash
 
       - run: npm ci
+        shell: bash
 
       # Build
       - run: npm run build
