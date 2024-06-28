@@ -41,22 +41,6 @@ runs:
         EOF
       shell: bash
 
-    - name: Commit and push changes
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add CHANGELOG.md
-        git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
-        git push
-      shell: bash
-    # Setup to publish to npm Packages
-    - uses: actions/setup-node@v4
-      with:
-        node-version: "20.x"
-        registry-url: "https://registry.npmjs.org"
-
       # Update package.json with the release version
     - name: Update package.json version
       run: |
@@ -66,6 +50,22 @@ runs:
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
+
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add CHANGELOG.md package.json
+        git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
+        git push
+      shell: bash
+    # Setup to publish to npm Packages
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
+        registry-url: "https://registry.npmjs.org"
 
     # Checout submodule
     - name: Checkout submodules
