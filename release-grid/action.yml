@@ -97,6 +97,6 @@ runs:
     #   env:
     #     NODE_AUTH_TOKEN: ${{ inputs.token }}
 
-    Update packages with new version
-    - name: Sync packages
+    - name: Update packages with new version
       run: npm run package:update
+      shell: bash
