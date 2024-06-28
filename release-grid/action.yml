@@ -31,12 +31,14 @@ runs:
     - name: Checkout branch
       run: git checkout ${{ env.BRANCH_NAME }}
       shell: bash
-    # Update CHANGELOG.md with release notes
+
     - name: Update CHANGELOG.md
       run: |
-        RELEASE_NOTES="${{ github.event.release.body }}"
-        TAG_NAME="${{ github.event.release.tag_name }}"
-        echo -e "## $TAG_NAME\n\n$RELEASE_NOTES\n" >> CHANGELOG.md
+        cat <<EOF >> CHANGELOG.md
+        ## ${{ github.event.release.tag_name }}
+
+        ${{ github.event.release.body }}
+        EOF
       shell: bash
 
     - name: Commit and push changes
