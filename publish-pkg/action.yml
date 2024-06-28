@@ -52,7 +52,7 @@ runs:
           scope: '@revolist'
 
       # Publish to GitHub Packages
-      - run: npm publish --tag ${{ env.TAG }}
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ inputs.token }}
           

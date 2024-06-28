@@ -100,7 +100,7 @@ runs:
 
     # Publish to GitHub Packages
     - name: Publish to GitHub Packages
-      run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
+      run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
       shell: bash
