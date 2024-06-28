@@ -57,16 +57,11 @@ runs:
 
     # Checout submodule
     - name: Checkout submodules
-      run: git submodule update --init --remote --recursive
-      shell: bash
-    # List files in the current directory
-    - name: List files in current directory
-      run: ls -la
-      shell: bash
-
-    # List files in the packages/react/ directory
-    - name: List files in packages/react/ directory
-      run: ls -la packages/react/
+      run: |
+        echo "Updating submodules to follow branch: ${{ env.BRANCH_NAME }}"
+        git submodule update --init --remote --recursive
+        git submodule foreach --recursive 'git checkout ${{ env.BRANCH_NAME }} || :'
+        git submodule foreach --recursive 'git pull origin ${{ env.BRANCH_NAME }} || :'
       shell: bash
 
     - run: npm ci
@@ -105,15 +100,7 @@ runs:
     #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
     #   env:
     #     NODE_AUTH_TOKEN: ${{ inputs.token }}
-    # List files in the current directory
-    - name: List files in current directory
-      run: ls -la
-      shell: bash
 
-    # List files in the packages/react/ directory
-    - name: List files in packages/react/ directory
-      run: ls -la packages/react/
-      shell: bash
     - name: Update packages with new version
       run: npm run package:update
       shell: bash
