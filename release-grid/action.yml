@@ -59,7 +59,13 @@ runs:
     - name: Checkout submodules
       run: git submodule update --init --remote --recursive
       shell: bash
+    # List files in the current directory
+    - name: List files in current directory
+      run: ls -la
 
+    # List files in the packages/react/ directory
+    - name: List files in packages/react/ directory
+      run: ls -la packages/react/
     - run: npm ci
       shell: bash
 
@@ -96,7 +102,13 @@ runs:
     #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
     #   env:
     #     NODE_AUTH_TOKEN: ${{ inputs.token }}
+    # List files in the current directory
+    - name: List files in current directory
+      run: ls -la
 
+    # List files in the packages/react/ directory
+    - name: List files in packages/react/ directory
+      run: ls -la packages/react/
     - name: Update packages with new version
       run: npm run package:update
       shell: bash
