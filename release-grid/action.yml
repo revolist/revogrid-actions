@@ -62,10 +62,13 @@ runs:
     # List files in the current directory
     - name: List files in current directory
       run: ls -la
+      shell: bash
 
     # List files in the packages/react/ directory
     - name: List files in packages/react/ directory
       run: ls -la packages/react/
+      shell: bash
+
     - run: npm ci
       shell: bash
 
@@ -105,10 +108,12 @@ runs:
     # List files in the current directory
     - name: List files in current directory
       run: ls -la
+      shell: bash
 
     # List files in the packages/react/ directory
     - name: List files in packages/react/ directory
       run: ls -la packages/react/
+      shell: bash
     - name: Update packages with new version
       run: npm run package:update
       shell: bash
