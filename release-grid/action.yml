@@ -18,10 +18,12 @@ runs:
     - name: Extract branch name
       id: extract_branch
       run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      shell: bash
 
     # Checkout current branch
     - name: Checkout current branch
       run: git checkout ${{ env.BRANCH_NAME }}
+      shell: bash
     # Update CHANGELOG.md with release notes
     - name: Update CHANGELOG.md
       run: |
