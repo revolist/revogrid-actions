@@ -116,7 +116,7 @@ runs:
     #   shell: bash
 
     - name: Update packages with new version
-      run: node ${{ github.action_path }}/release-grid/package-version.mjs
+      run: node release-grid/package-version.mjs
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
