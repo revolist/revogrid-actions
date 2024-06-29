@@ -58,6 +58,7 @@ async function commitAndPushChanges(packageDir, newVersion) {
   } catch (error) {
     console.error(chalk.red(`Failed to commit and push changes for ${packageDir}`));
     console.error(error);
+    process.exit(1);
   }
 }
 
