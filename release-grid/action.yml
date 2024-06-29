@@ -95,37 +95,37 @@ runs:
     - run: npm run build
       shell: bash
 
-    # # Determine if this is a pre-release
-    # - name: Check if pre-release
-    #   id: tag
-    #   run: |
-    #     if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
-    #       echo "::set-output name=TAG::prerelease"
-    #     else
-    #       echo "::set-output name=TAG::latest"
-    #     fi
-    #   shell: bash
+    # Determine if this is a pre-release
+    - name: Check if pre-release
+      id: tag
+      run: |
+        if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+          echo "::set-output name=TAG::prerelease"
+        else
+          echo "::set-output name=TAG::latest"
+        fi
+      shell: bash
 
-    # # Publish to npm
-    # - name: Publish to npm
-    #   run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
-    #   shell: bash
+    # Publish to npm
+    - name: Publish to npm
+      run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+      shell: bash
 
-    # # Setup to publish to GitHub Packages
-    # - uses: actions/setup-node@v4
-    #   with:
-    #     registry-url: 'https://npm.pkg.github.com'
-    #     # Defaults to the user or organization that owns the workflow file
-    #     scope: '@revolist'
+    # Setup to publish to GitHub Packages
+    - uses: actions/setup-node@v4
+      with:
+        registry-url: 'https://npm.pkg.github.com'
+        # Defaults to the user or organization that owns the workflow file
+        scope: '@revolist'
 
-    # # Publish to GitHub Packages
-    # - name: Publish to GitHub Packages
-    #   run: npm publish
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ inputs.token }}
-    #   shell: bash
+    # Publish to GitHub Packages
+    - name: Publish to GitHub Packages
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.token }}
+      shell: bash
 
     - name: Update version in each package
       run: |
