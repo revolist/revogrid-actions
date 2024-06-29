@@ -142,7 +142,7 @@ runs:
             echo "Processing $dir"
             cd $dir
             REMOTE_URL=$(git config --get remote.origin.url)
-            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ secrets.PAT }}@}
+            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
             git remote set-url origin $AUTHENTICATED_URL
             git add .
             git commit -m "chore(release): update versions to ${{ env.VERSION }}"
