@@ -64,7 +64,7 @@ runs:
     # Setup to publish to npm Packages
     - uses: actions/setup-node@v4
       with:
-        node-version: "22.x"
+        node-version: "20.x"
         registry-url: "https://registry.npmjs.org"
 
     # Checout submodule
@@ -120,12 +120,4 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
-
-    - name: Commit and push changes to submodules
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git submodule foreach "git checkout ${{ env.BRANCH_NAME }} && git add . && git commit -m 'chore(release): update versions to ${{ github.event.release.tag_name }}' && git push"
-      shell: bash
+    
