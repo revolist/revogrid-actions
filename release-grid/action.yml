@@ -32,15 +32,6 @@ runs:
       run: git checkout ${{ env.BRANCH_NAME }}
       shell: bash
 
-    - name: Update CHANGELOG.md
-      run: |
-        cat <<EOF >> CHANGELOG.md
-        ## ${{ github.event.release.tag_name }}
-
-        ${{ github.event.release.body }}
-        EOF
-      shell: bash
-
       # Update package.json with the release version
     - name: Update package.json version
       id: update_version
@@ -53,12 +44,25 @@ runs:
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
 
+    - name: Update CHANGELOG.md
+      run: |
+        cat <<EOF >> CHANGELOG.md
+        ## ${{ github.event.release.tag_name }}
+
+        ${{ github.event.release.body }}
+        EOF
+      shell: bash
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      shell: bash
+
     - name: Commit and push changes
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add CHANGELOG.md package.json
         git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
         git push
@@ -129,27 +133,16 @@ runs:
         VERSION: ${{ env.VERSION }}
       shell: bash
 
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      shell: bash
-
     - name: Commit and push changes
       run: |
         for dir in packages/*; do
           if [ -d "$dir" ]; then
             echo "Processing $dir"
             cd $dir
-            # Get the remote URL of the submodule
-            REMOTE_URL=$(git config --get remote.origin.url)
-            # Set the remote URL to use the GitHub token for authentication
-            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
-            git remote set-url origin $AUTHENTICATED_URL
-            git checkout ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }}
+            git checkout ${{ env.BRANCH_NAME }}
             git add .
             git commit -m "chore(release): update versions to ${{ env.VERSION }}"
-            git push origin HEAD
+            git push
             cd -
           fi
         done
