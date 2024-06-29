@@ -75,6 +75,8 @@ runs:
 
     # Checout submodule
     - name: Checkout submodules
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         echo "Updating submodules to follow branch: ${{ env.BRANCH_NAME }}"
         git submodule update --init --remote --recursive
@@ -139,7 +141,6 @@ runs:
           if [ -d "$dir" ]; then
             echo "Processing $dir"
             cd $dir
-            git checkout ${{ env.BRANCH_NAME }}
             git add .
             git commit -m "chore(release): update versions to ${{ env.VERSION }}"
             git push
