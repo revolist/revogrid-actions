@@ -10,6 +10,10 @@ inputs:
     type: string
     required: true
     description: "NPM token"
+  repo_token:
+    type: string
+    required: true
+    description: "GitHub repo token"
 
 runs:
   using: "composite"
@@ -142,7 +146,7 @@ runs:
             echo "Processing $dir"
             cd $dir
             REMOTE_URL=$(git config --get remote.origin.url)
-            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
+            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.repo_token }}@}
             git remote set-url origin $AUTHENTICATED_URL
             git add .
             git commit -m "chore(release): update versions to ${{ env.VERSION }}"
@@ -151,5 +155,5 @@ runs:
           fi
         done
       env:
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_TOKEN: ${{ inputs.repo_token }}
       shell: bash
