@@ -62,7 +62,7 @@ async function commitAndPushChanges(packageDir, newVersion) {
     await execa('git', ['commit', '-m', `chore(release): update versions to ${newVersion}`], { cwd: packageDir, stdio: 'inherit' });
 
     // Push changes
-    await execa('git', ['push'], { cwd: packageDir, stdio: 'inherit' });
+    await execa('git', ['push'], { cwd: packageDir });
 
     console.log(chalk.green(`Successfully committed and pushed version updates for ${packageDir} to GitHub`));
   } catch (error) {
