@@ -128,28 +128,28 @@ runs:
       env:
         VERSION: ${{ env.VERSION }}
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit and push changes
-        run: |
-          for dir in packages/*; do
-            if [ -d "$dir" ]; then
-              echo "Processing $dir"
-              cd $dir
-              # Get the remote URL of the submodule
-              REMOTE_URL=$(git config --get remote.origin.url)
-              # Set the remote URL to use the GitHub token for authentication
-              AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
-              git remote set-url origin $AUTHENTICATED_URL
-              git checkout ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }}
-              git add .
-              git commit -m "chore(release): update versions to ${{ env.VERSION }}"
-              git push origin HEAD
-              cd -
-            fi
-          done
-        env:
-          GITHUB_TOKEN: ${{ inputs.token }}
+    - name: Commit and push changes
+      run: |
+        for dir in packages/*; do
+          if [ -d "$dir" ]; then
+            echo "Processing $dir"
+            cd $dir
+            # Get the remote URL of the submodule
+            REMOTE_URL=$(git config --get remote.origin.url)
+            # Set the remote URL to use the GitHub token for authentication
+            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
+            git remote set-url origin $AUTHENTICATED_URL
+            git checkout ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }}
+            git add .
+            git commit -m "chore(release): update versions to ${{ env.VERSION }}"
+            git push origin HEAD
+            cd -
+          fi
+        done
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
