@@ -127,11 +127,13 @@ runs:
         done
       env:
         VERSION: ${{ env.VERSION }}
+      shell: bash
 
     - name: Configure Git
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      shell: bash
 
     - name: Commit and push changes
       run: |
@@ -153,3 +155,4 @@ runs:
         done
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
