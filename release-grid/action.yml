@@ -125,5 +125,5 @@ runs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git submodule foreach "git add . && git commit -m 'chore(release): update versions to ${{ github.event.release.tag_name }}' && git push"
+        git submodule foreach "git checkout ${{ env.BRANCH_NAME }} && git add . && git commit -m 'chore(release): update versions to ${{ github.event.release.tag_name }}' && git push"
       shell: bash
