@@ -42,11 +42,9 @@ async function commitAndPushChanges(packageDir, newVersion) {
 
   try {
     // Configure Git to use the GitHub token
-    await execa('git', ['config', '--global', 'credential.helper', 'store'], { cwd: packageDir });
     await execa('git', ['config', '--global', 'user.name', '"github-actions[bot]"'], { cwd: packageDir });
     await execa('git', ['config', '--global', 'user.email', '"github-actions[bot]@users.noreply.github.com"'], { cwd: packageDir });
-    await execa('git', ['config', '--global', `url.https://${githubToken}:x-oauth-basic@github.com/.insteadOf`, 'https://github.com/'], { cwd: packageDir });
-
+  
     // Add changes
     await execa('git', ['add', '.'], { cwd: packageDir, stdio: 'inherit' });
 
