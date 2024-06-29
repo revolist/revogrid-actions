@@ -119,5 +119,6 @@ runs:
       run: node ./actions/package-version.mjs
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+        BRANCH_NAME: ${{ env.BRANCH_NAME }}
       shell: bash
     

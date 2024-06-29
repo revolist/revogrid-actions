@@ -34,6 +34,7 @@ async function updateVersionInPackage(packageDir) {
 
 async function commitAndPushChanges(packageDir, newVersion) {
   const githubToken = process.env.GITHUB_TOKEN;
+  const branch = process.env.BRANCH_NAME;
 
   if (!githubToken) {
     console.error(chalk.red('GitHub token is not set'));
@@ -52,6 +53,8 @@ async function commitAndPushChanges(packageDir, newVersion) {
     const authenticatedUrl = remoteUrl.replace('https://', `https://x-access-token:${githubToken}@`);
     await execa('git', ['remote', 'set-url', 'origin', authenticatedUrl], { cwd: packageDir });
 
+    await execa('git', ['checkout', branch || 'main'], { cwd: packageDir });
+
     // Add changes
     await execa('git', ['add', '.'], { cwd: packageDir, stdio: 'inherit' });
 
@@ -59,12 +62,13 @@ async function commitAndPushChanges(packageDir, newVersion) {
     await execa('git', ['commit', '-m', `chore(release): update versions to ${newVersion}`], { cwd: packageDir, stdio: 'inherit' });
 
     // Push changes
-    await execa('git', ['push', 'origin', 'HEAD'], { cwd: packageDir, stdio: 'inherit' });
+    await execa('git', ['push'], { cwd: packageDir, stdio: 'inherit' });
 
     console.log(chalk.green(`Successfully committed and pushed version updates for ${packageDir} to GitHub`));
   } catch (error) {
     console.error(chalk.red(`Failed to commit and push changes for ${packageDir}`));
     console.error(error);
+    process.exit(1);
   }
 }
 
