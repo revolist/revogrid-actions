@@ -43,10 +43,12 @@ runs:
 
       # Update package.json with the release version
     - name: Update package.json version
+      id: update_version
       run: |
         VERSION="${{ github.event.release.tag_name }}"
         # Remove the 'v' prefix if it exists
         VERSION=${VERSION#v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
@@ -115,10 +117,39 @@ runs:
     #     NODE_AUTH_TOKEN: ${{ inputs.token }}
     #   shell: bash
 
-    - name: Update packages with new version
-      run: node ./actions/package-version.mjs
+    - name: Update version in each package
+      run: |
+        for dir in packages/*; do
+          if [ -d "$dir" ]; then
+            echo "Updating version in $dir"
+            node $dir/release.mjs --version ${{ env.VERSION }}
+          fi
+        done
       env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-        BRANCH_NAME: ${{ env.BRANCH_NAME }}
-      shell: bash
-    
+        VERSION: ${{ env.VERSION }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push changes
+        run: |
+          for dir in packages/*; do
+            if [ -d "$dir" ]; then
+              echo "Processing $dir"
+              cd $dir
+              # Get the remote URL of the submodule
+              REMOTE_URL=$(git config --get remote.origin.url)
+              # Set the remote URL to use the GitHub token for authentication
+              AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.token }}@}
+              git remote set-url origin $AUTHENTICATED_URL
+              git checkout ${{ github.ref_name }} || git checkout -b ${{ github.ref_name }}
+              git add .
+              git commit -m "chore(release): update versions to ${{ env.VERSION }}"
+              git push origin HEAD
+              cd -
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ inputs.token }}
