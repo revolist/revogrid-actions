@@ -43,7 +43,7 @@ runs:
     - run: npm ci
       shell: bash
 
-    - run: npm run build
+    - run: npm run build:packages
       shell: bash
 
     - name: Update version in each package
@@ -68,9 +68,6 @@ runs:
           if [ -d "$dir" ]; then
             echo "Processing $dir"
             cd $dir
-            REMOTE_URL=$(git config --get remote.origin.url)
-            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.repo_token }}@}
-            git remote set-url origin $AUTHENTICATED_URL
             git add .
             git commit -m "chore(release): update versions to $VERSION" || echo "Failed to commit changes for $dir."
             git push || echo "Failed to push changes for $dir, continuing with next package..."
