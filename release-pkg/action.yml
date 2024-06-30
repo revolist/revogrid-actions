@@ -79,6 +79,8 @@ runs:
 
     - name: Fetch specific release info from revolist/revogrid
       id: fetch_release
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         TAG_NAME="v${{ steps.get_version.outputs.version }}"
         RELEASE_INFO=$(gh release view "$TAG_NAME" --repo revolist/revogrid --json tagName,body -q ".tagName + \"\n\" + .body")
