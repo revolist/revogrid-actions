@@ -48,23 +48,21 @@ runs:
 
     - name: Update version in each package
       run: |
-        for dir in packages/*; do
+        dirs=(packages/* docs)
+        for dir in "${dirs[@]}"; do
           if [ -d "$dir" ]; then
             echo "Updating version in $dir $VERSION"
             node $dir/release.mjs --version $VERSION
           fi
         done
-        if [ -d "docs" ]; then
-          echo "Updating version in docs $VERSION"
-          node docs/release.mjs --version $VERSION
-        fi
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
       shell: bash
 
     - name: Commit and push changes
       run: |
-        for dir in packages/*; do
+        dirs=(packages/* docs)
+        for dir in "${dirs[@]}"; do
           if [ -d "$dir" ]; then
             echo "Processing $dir"
             cd $dir
