@@ -55,6 +55,7 @@ runs:
         if [ -d "docs" ]; then
           echo "Updating version in docs $VERSION"
           node docs/release.mjs --version $VERSION
+        fi
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
       shell: bash
