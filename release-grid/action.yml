@@ -25,8 +25,9 @@ runs:
       id: get_version
       with:
         tag: ${{ github.event.release.tag_name }}
-      
 
+    - uses: ./actions/configure-git
+      
     - name: Checkout branch
       run: git checkout ${{ steps.get_branch.outputs.branch }}
       shell: bash
@@ -46,12 +47,6 @@ runs:
 
         ${{ github.event.release.body }}
         EOF
-      shell: bash
-
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
       shell: bash
 
     - name: Commit and push changes

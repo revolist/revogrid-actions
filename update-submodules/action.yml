@@ -27,6 +27,8 @@ runs:
       with:
         tag: ${{ github.event.release.tag_name }}
 
+    - uses: ./actions/configure-git
+
     - name: Checkout submodules
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -41,7 +43,7 @@ runs:
     - run: npm ci
       shell: bash
 
-    - run: npm run build
+    - run: npm run build:packages
       shell: bash
 
     - name: Update version in each package
