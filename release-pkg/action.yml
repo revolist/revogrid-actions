@@ -33,63 +33,50 @@ runs:
       run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
       shell: bash
 
-    # - name: Check if version tag changed
-    #   id: version_check
-    #   run: |
-    #     VERSION=${{ steps.get_version.outputs.version }}
-    #     git fetch --tags
-    #     if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-    #       echo "Tag v$VERSION changed."
-    #       echo "changed=false" >> $GITHUB_OUTPUT
-    #     else
-    #       echo "Tag v$VERSION does not exist."
-    #       echo "changed=true" >> $GITHUB_OUTPUT
-    #     fi
-    #   shell: bash
+    - name: Check if version tag changed
+      id: version_check
+      run: |
+        VERSION=${{ steps.get_version.outputs.version }}
+        git fetch --tags
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Tag v$VERSION changed."
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "Tag v$VERSION does not exist."
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
 
-    # - name: Stop if version has not changed
-    #   if: steps.version_check.outputs.changed == 'false'
-    #   run: echo "Version has not changed, stopping job."
-    #   shell: bash
-
-    # - name: Collect release info from main repo
-    #   if: steps.version_check.outputs.changed == 'true'
-    #   run: |
-    #     git clone --branch ${{ steps.get_branch.outputs.branch }} https://github.com/revolist/revogrid.git main-repo
-    #     cd main-repo
-    #     git fetch --tags
-    #     git checkout "v${{ steps.get_version.outputs.version }}"
-    #   shell: bash
-
-    # - name: Create GitHub release
-    #   if: steps.version_check.outputs.changed == 'true'
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ inputs.token }}
-    #   with:
-    #     tag_name: v${{ steps.get_version.outputs.version }}
-    #     release_name: Release ${{ steps.get_version.outputs.version }}
-    #     draft: ${{ inputs.draft }}
-    #     prerelease: ${{ inputs.prerelease }}
-    #     body_path: main-repo/CHANGELOG.md
+    - name: Stop if version has not changed
+      if: steps.version_check.outputs.changed == 'false'
+      run: echo "Version has not changed, stopping job."
+      shell: bash
 
     - name: Install GitHub CLI
+      if: steps.version_check.outputs.changed == 'true'
       run: sudo apt-get install -y gh
       shell: bash
 
     - name: Fetch specific release info from revolist/revogrid
+      if: steps.version_check.outputs.changed == 'true'
       id: fetch_release
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         TAG_NAME="v${{ steps.get_version.outputs.version }}"
         RELEASE_INFO=$(gh release view "$TAG_NAME" --repo revolist/revogrid --json tagName,body -q ".tagName + \"\n\" + .body")
-        TAG_NAME=$(echo "$RELEASE_INFO" | head -n 1)
         RELEASE_BODY=$(echo "$RELEASE_INFO" | tail -n +2)
-        echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-        echo "RELEASE_BODY=$RELEASE_BODY"
-        echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
+        echo "release_body=$RELEASE_BODY" >> $GITHUB_OUTPUT
       shell: bash
 
-
-          
+    - name: Create GitHub release
+      if: steps.version_check.outputs.changed == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        release_name: Release ${{ steps.get_version.outputs.version }}
+        draft: ${{ inputs.draft }}
+        prerelease: ${{ inputs.prerelease }}
+        body_path: ${{ steps.fetch_release.outputs.release_body }}
