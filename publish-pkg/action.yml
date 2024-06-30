@@ -25,9 +25,11 @@ runs:
         registry-url: 'https://registry.npmjs.org'
 
     - run: npm ci
+      shell: bash
 
     - name: Build
       run: npm run build
+      shell: bash
 
     - name: Determine tag for npm publish
       run: |
@@ -36,11 +38,13 @@ runs:
         else
           echo "TAG=latest" >> $GITHUB_ENV
         fi
+      shell: bash
 
     - name: Publish to npm
       run: npm publish --access public --tag ${{ env.TAG }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+      shell: bash
 
     - name: Setup node to publish to GitHub Packages
       uses: actions/setup-node@v4
@@ -54,4 +58,5 @@ runs:
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
+      shell: bash
           
