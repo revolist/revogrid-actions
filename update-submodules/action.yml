@@ -1,0 +1,71 @@
+name: Release revogrid submodules version
+description: Release revogrid  submodules version
+
+inputs:
+  token:
+    type: string
+    required: true
+    description: "GitHub token"
+  repo_token:
+    type: string
+    required: true
+    description: "GitHub repo token"
+
+
+runs:
+  using: "composite"
+  steps:
+    - uses: ./actions/branch-name
+      id: get_branch
+
+    - name: Checkout submodules
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        BRANCH_NAME: ${{ steps.get_branch.outputs.branch }}
+      run: |
+        echo "Updating submodules to follow branch $BRANCH_NAME"
+        git submodule update --init --remote --recursive
+        git submodule foreach --recursive 'git checkout $BRANCH_NAME || :'
+        git submodule foreach --recursive 'git pull origin $BRANCH_NAME || :'
+      shell: bash
+
+    - run: npm ci
+      shell: bash
+
+    - run: npm run build
+      shell: bash
+
+    - name: Update version in each package
+      run: |
+        for dir in packages/*; do
+          if [ -d "$dir" ]; then
+            echo "Updating version in $dir $VERSION"
+            node $dir/release.mjs --version $VERSION
+          fi
+        done
+        if [ -d docs ]; then
+          echo "Updating version in docs $VERSION"
+          node docs/release.mjs --version $VERSION
+      env:
+        VERSION: ${{ github.event.release.tag_name#v }}
+      shell: bash
+
+    - name: Commit and push changes
+      run: |
+        for dir in packages/*; do
+          if [ -d "$dir" ]; then
+            echo "Processing $dir"
+            cd $dir
+            REMOTE_URL=$(git config --get remote.origin.url)
+            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.repo_token }}@}
+            git remote set-url origin $AUTHENTICATED_URL
+            git add .
+            git commit -m "chore(release): update versions to $VERSION" || echo "Failed to commit changes for $dir."
+            git push || echo "Failed to push changes for $dir, continuing with next package..."
+            cd -
+          fi
+        done
+      env:
+        GITHUB_TOKEN: ${{ inputs.repo_token }}
+        VERSION: ${{ github.event.release.tag_name#v }}
+      shell: bash

@@ -1,0 +1,18 @@
+name: Branch name
+description: Get the name of the current branch
+
+outputs:
+  branch:
+    description: Branch name
+    value: ${{ steps.get_branch.outputs.branch }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get branch name from tag
+      id: get_branch
+      run: |
+        TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+        BRANCH_NAME=$(git branch -r --contains $TAG_COMMIT | grep -v '\->' | sed 's/ *origin\///' | head -n 1)
+        echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+      shell: bash

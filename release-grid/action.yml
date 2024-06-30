@@ -10,10 +10,6 @@ inputs:
     type: string
     required: true
     description: "NPM token"
-  repo_token:
-    type: string
-    required: true
-    description: "GitHub repo token"
 
 runs:
   using: "composite"
@@ -22,24 +18,17 @@ runs:
       run: git fetch --all
       shell: bash
 
-    - name: Get branch name from tag
+    - uses: ./actions/branch-name
       id: get_branch
-      run: |
-        TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
-        BRANCH_NAME=$(git branch -r --contains $TAG_COMMIT | grep -v '\->' | sed 's/ *origin\///' | head -n 1)
-        echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
-      shell: bash
 
     - name: Checkout branch
-      run: git checkout ${{ env.BRANCH_NAME }}
+      run: git checkout ${{ steps.get_branch.outputs.branch }}
       shell: bash
 
     - name: Update package.json version
+      env:
+        VERSION: ${{ github.event.release.tag_name#v }}
       run: |
-        VERSION="${{ github.event.release.tag_name }}"
-        # Remove the 'v' prefix if it exists
-        VERSION=${VERSION#v}
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
@@ -74,16 +63,6 @@ runs:
       with:
         node-version: "22.x"
         registry-url: "https://registry.npmjs.org"
-
-    - name: Checkout submodules
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-      run: |
-        echo "Updating submodules to follow branch: ${{ env.BRANCH_NAME }}"
-        git submodule update --init --remote --recursive
-        git submodule foreach --recursive 'git checkout ${{ env.BRANCH_NAME }} || :'
-        git submodule foreach --recursive 'git pull origin ${{ env.BRANCH_NAME }} || :'
-      shell: bash
 
     - run: npm ci
       shell: bash
@@ -120,34 +99,4 @@ runs:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
       shell: bash
 
-    - name: Update version in each package
-      run: |
-        for dir in packages/*; do
-          if [ -d "$dir" ]; then
-            echo "Updating version in $dir $VERSION"
-            node $dir/release.mjs --version $VERSION
-          fi
-        done
-      env:
-        VERSION: ${{ env.VERSION }}
-      shell: bash
-
-    - name: Commit and push changes
-      run: |
-        for dir in packages/*; do
-          if [ -d "$dir" ]; then
-            echo "Processing $dir"
-            cd $dir
-            REMOTE_URL=$(git config --get remote.origin.url)
-            AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.repo_token }}@}
-            git remote set-url origin $AUTHENTICATED_URL
-            git add .
-            git commit -m "chore(release): update versions to $VERSION" || echo "Failed to commit changes for $dir."
-            git push || echo "Failed to push changes for $dir, continuing with next package..."
-            cd -
-          fi
-        done
-      env:
-        GITHUB_TOKEN: ${{ inputs.repo_token }}
-        VERSION: ${{ env.VERSION }}
-      shell: bash
+    
