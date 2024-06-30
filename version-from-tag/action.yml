@@ -1,7 +1,7 @@
 name: Get Version
 description: Remove 'v' prefix from the release tag name and set it as an output variable
 inputs:
-  release_tag:
+  tag:
     description: 'The release tag name'
     required: true
 
