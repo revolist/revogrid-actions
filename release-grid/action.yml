@@ -38,12 +38,11 @@ runs:
 
       # Update package.json with the release version
     - name: Update package.json version
-      id: update_version
       run: |
         VERSION="${{ github.event.release.tag_name }}"
         # Remove the 'v' prefix if it exists
         VERSION=${VERSION#v}
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_ENV
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
@@ -74,7 +73,7 @@ runs:
     # Setup to publish to npm Packages
     - uses: actions/setup-node@v4
       with:
-        node-version: "20.x"
+        node-version: "22.x"
         registry-url: "https://registry.npmjs.org"
 
     # Checout submodule
@@ -132,7 +131,7 @@ runs:
         for dir in packages/*; do
           if [ -d "$dir" ]; then
             echo "Updating version in $dir"
-            node $dir/release.mjs --version ${{ env.VERSION }}
+            node $dir/release.mjs --version $VERSION
           fi
         done
       env:
@@ -149,8 +148,7 @@ runs:
             AUTHENTICATED_URL=${REMOTE_URL/https:\/\//https:\/\/x-access-token:${{ inputs.repo_token }}@}
             git remote set-url origin $AUTHENTICATED_URL
             git add .
-            git commit -m "chore(release): update versions to ${{ env.VERSION }}"
-            echo "Pushing $dir"
+            git commit -m "chore(release): update versions to $VERSION" || echo "Failed to commit changes for $dir."
             git push || echo "Failed to push changes for $dir, continuing with next package..."
             cd -
           fi
