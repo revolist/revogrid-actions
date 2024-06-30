@@ -74,7 +74,8 @@ runs:
     #     body_path: main-repo/CHANGELOG.md
 
     - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
+      run: sudo apt-get install -y gh
+      shell: bash
 
     - name: Fetch specific release info from revolist/revogrid
       id: fetch_release
@@ -86,6 +87,7 @@ runs:
         echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
         echo "RELEASE_BODY=$RELEASE_BODY"
         echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
+      shell: bash
 
 
           
