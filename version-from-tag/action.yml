@@ -7,12 +7,14 @@ inputs:
 
 outputs:
   version:
+    value: ${{ steps.version.outputs.version }}
     description: 'The processed version without the v prefix'
 
 runs:
   using: "composite"
   steps:
     - name: Set VERSION environment variable and output
+      id: version
       shell: bash
       run: |
         VERSION="${{ inputs.release_tag }}"
