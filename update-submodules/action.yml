@@ -15,6 +15,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Fetch all branches and tags
+      run: git fetch --all
+      shell: bash
+
     - uses: ./actions/branch-name
       id: get_branch
 
