@@ -40,23 +40,13 @@ runs:
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
 
-    - name: Update CHANGELOG.md
-      run: |
-        cat <<EOF > CHANGELOG.md
-        ## ${{ github.event.release.tag_name }}
-
-        ${{ github.event.release.body }}
-        EOF
-      shell: bash
-
     - name: Commit and push changes
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
-        git add CHANGELOG.md package.json
-        git commit -m "chore(release): Update CHANGELOG.md for release ${{ github.event.release.tag_name }}"
-        git tag -fa ${{ github.event.release.tag_name }}
-        git push --follow-tags
+        git add package.json
+        git commit -m "chore(release): Update package.json for release ${{ github.event.release.tag_name }}"
+        git push
       shell: bash
 
     - name: Setup Node to publish to npm Packages
