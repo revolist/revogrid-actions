@@ -46,7 +46,7 @@ runs:
 
     - name: Update CHANGELOG.md
       run: |
-        cat <<EOF >> CHANGELOG.md
+        cat <<EOF > CHANGELOG.md
         ## ${{ github.event.release.tag_name }}
 
         ${{ github.event.release.body }}
