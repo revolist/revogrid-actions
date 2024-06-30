@@ -79,4 +79,4 @@ runs:
         release_name: Release ${{ steps.get_version.outputs.version }}
         draft: ${{ inputs.draft }}
         prerelease: ${{ inputs.prerelease }}
-        body_path: ${{ steps.fetch_release.outputs.release_body }}
+        body: ${{ steps.fetch_release.outputs.release_body }}
