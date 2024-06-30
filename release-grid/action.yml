@@ -42,7 +42,7 @@ runs:
         VERSION="${{ github.event.release.tag_name }}"
         # Remove the 'v' prefix if it exists
         VERSION=${VERSION#v}
-        echo "version=$VERSION" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json
       shell: bash
@@ -130,7 +130,7 @@ runs:
       run: |
         for dir in packages/*; do
           if [ -d "$dir" ]; then
-            echo "Updating version in $dir"
+            echo "Updating version in $dir $VERSION"
             node $dir/release.mjs --version $VERSION
           fi
         done
