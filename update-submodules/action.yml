@@ -41,7 +41,7 @@ runs:
     - run: npm ci
       shell: bash
 
-    - run: npm run build
+    - run: npm run build:packages
       shell: bash
 
     - name: Update version in each package
@@ -52,7 +52,7 @@ runs:
             node $dir/release.mjs --version $VERSION
           fi
         done
-        if [ -d docs ]; then
+        if [ -d "docs" ]; then
           echo "Updating version in docs $VERSION"
           node docs/release.mjs --version $VERSION
       env:
