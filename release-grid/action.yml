@@ -21,13 +21,19 @@ runs:
     - uses: ./actions/branch-name
       id: get_branch
 
+    - uses: ./actions/version-from-tag
+      id: get_version
+      with:
+        tag: ${{ github.event.release.tag_name }}
+      
+
     - name: Checkout branch
       run: git checkout ${{ steps.get_branch.outputs.branch }}
       shell: bash
 
     - name: Update package.json version
       env:
-        VERSION: ${{ github.event.release.tag_name#v }}
+        VERSION: ${{ steps.get_version.outputs.version }}
       run: |
         echo "Updating package.json with version $VERSION"
         jq --arg version "$VERSION" '.version = $version' package.json > tmp.$$.json && mv tmp.$$.json package.json

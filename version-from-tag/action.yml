@@ -1,0 +1,21 @@
+name: Get Version
+description: Remove 'v' prefix from the release tag name and set it as an output variable
+inputs:
+  release_tag:
+    description: 'The release tag name'
+    required: true
+
+outputs:
+  version:
+    description: 'The processed version without the v prefix'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set VERSION environment variable and output
+      shell: bash
+      run: |
+        VERSION="${{ inputs.release_tag }}"
+        VERSION=${VERSION#v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        

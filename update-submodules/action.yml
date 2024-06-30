@@ -18,6 +18,11 @@ runs:
     - uses: ./actions/branch-name
       id: get_branch
 
+    - uses: ./actions/version-from-tag
+      id: get_version
+      with:
+        tag: ${{ github.event.release.tag_name }}
+
     - name: Checkout submodules
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -47,7 +52,7 @@ runs:
           echo "Updating version in docs $VERSION"
           node docs/release.mjs --version $VERSION
       env:
-        VERSION: ${{ github.event.release.tag_name#v }}
+        VERSION: ${{ steps.get_version.outputs.version }}
       shell: bash
 
     - name: Commit and push changes
@@ -67,5 +72,5 @@ runs:
         done
       env:
         GITHUB_TOKEN: ${{ inputs.repo_token }}
-        VERSION: ${{ github.event.release.tag_name#v }}
+        VERSION: ${{ steps.get_version.outputs.version }}
       shell: bash
