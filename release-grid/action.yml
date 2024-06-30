@@ -150,10 +150,11 @@ runs:
             git remote set-url origin $AUTHENTICATED_URL
             git add .
             git commit -m "chore(release): update versions to ${{ env.VERSION }}"
-            git push
+            git push || echo "Failed to push changes for $dir, continuing with next package..."
             cd -
           fi
         done
       env:
         GITHUB_TOKEN: ${{ inputs.repo_token }}
+        VERSION: ${{ env.VERSION }}
       shell: bash
