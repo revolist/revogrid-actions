@@ -45,8 +45,8 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         git add package.json
-        git commit -m "chore(release): Update package.json for release ${{ github.event.release.tag_name }}"
-        git push
+        git commit -m "chore(release): Update package.json for release ${{ github.event.release.tag_name }}" || echo "Failed to commit changes."
+        git push || echo "Failed to push changes, continuing with next package..."
       shell: bash
 
     - name: Setup Node to publish to npm Packages
