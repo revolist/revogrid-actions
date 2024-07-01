@@ -9,6 +9,10 @@ inputs:
     type: string
     required: true
     description: "NPM token"
+  path:
+    type: string
+    required: false
+    description: "Path to package code"
 
 runs:
   using: "composite"
@@ -37,6 +41,11 @@ runs:
         else
           echo "TAG=latest" >> $GITHUB_ENV
         fi
+      shell: bash
+
+    - name: Check if path provided
+      if: ${{ inputs.path }}
+      run: cd ${{ inputs.path }}
       shell: bash
 
     - name: Publish to npm
