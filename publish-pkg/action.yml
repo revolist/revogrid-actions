@@ -43,16 +43,12 @@ runs:
         fi
       shell: bash
 
-    - name: Check if path provided
-      if: ${{ inputs.path }}
-      run: cd ${{ inputs.path }}
-      shell: bash
-
     - name: Publish to npm
       run: npm publish --provenance --access public --tag ${{ env.TAG }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
       shell: bash
+      working-directory: ${{ inputs.path || '.' }}
 
     - name: Setup node to publish to GitHub Packages
       uses: actions/setup-node@v4
