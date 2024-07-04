@@ -66,7 +66,10 @@ runs:
         TAG_NAME="v${{ steps.get_version.outputs.version }}"
         RELEASE_INFO=$(gh release view "$TAG_NAME" --repo revolist/revogrid --json tagName,body -q ".tagName + \"\n\" + .body")
         RELEASE_BODY=$(echo "$RELEASE_INFO" | tail -n +2)
-        echo "release_body=$RELEASE_BODY" >> $GITHUB_OUTPUT
+        # Use safe multi-line output handling
+        echo "release_body<<EOF" >> $GITHUB_OUTPUT
+        echo "$RELEASE_BODY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Create GitHub release
