@@ -64,8 +64,18 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: |
         TAG_NAME="v${{ steps.get_version.outputs.version }}"
-        RELEASE_INFO=$(gh release view "$TAG_NAME" --repo revolist/revogrid --json tagName,body -q ".tagName + \"\n\" + .body")
-        RELEASE_BODY=$(echo "$RELEASE_INFO" | tail -n +2)
+        
+        # Attempt to fetch the release info
+        RELEASE_INFO=$(gh release view "$TAG_NAME" --repo revolist/revogrid --json tagName,body -q ".tagName + \"\n\" + .body" || echo "not_found")
+        
+        if [[ "$RELEASE_INFO" == "not_found" ]]; then
+          echo "Release $TAG_NAME not found. Using current branch info."
+          # Fallback: Use the latest commit message from the current branch
+          RELEASE_BODY=$(git log -1 --pretty=%B)
+        else
+          RELEASE_BODY=$(echo "$RELEASE_INFO" | tail -n +2)
+        fi
+
         # Use safe multi-line output handling
         echo "release_body<<EOF" >> $GITHUB_OUTPUT
         echo "$RELEASE_BODY" >> $GITHUB_OUTPUT
