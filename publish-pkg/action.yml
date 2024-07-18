@@ -27,12 +27,7 @@ runs:
         node-version: '22.x'
         registry-url: 'https://registry.npmjs.org'
 
-    - run: npm ci
-      shell: bash
-
-    - name: Print npm log
-      if: failure()
-      run: cat /home/runner/.npm/_logs/$(date +%Y-%m-%dT%H_%M_%S).log
+    - run: npm i
       shell: bash
 
     - name: Build
