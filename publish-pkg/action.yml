@@ -27,7 +27,7 @@ runs:
         node-version: '22.x'
         registry-url: 'https://registry.npmjs.org'
 
-    - run: npm i
+    - run: npm ci
       shell: bash
 
     - name: Print npm log
