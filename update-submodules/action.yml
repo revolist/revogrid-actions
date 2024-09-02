@@ -31,7 +31,7 @@ runs:
 
     - name: Checkout submodules
       env:
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_TOKEN: ${{ inputs.repo_token }}
         BRANCH_NAME: ${{ steps.get_branch.outputs.branch }}
       run: |
         echo "Updating submodules to follow branch $BRANCH_NAME"
