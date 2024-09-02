@@ -19,7 +19,7 @@ runs:
     # Set up Node.js
     - uses: actions/setup-node@v4
       with:
-        node-version: '22.x'
+        node-version: 22.4.x
 
     # Check if package.json version has changed
     - name: Get current version
