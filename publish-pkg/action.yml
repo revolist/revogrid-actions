@@ -44,23 +44,19 @@ runs:
       shell: bash
 
     - name: Publish to npm
+      id: npm-publish
+      continue-on-error: true
       run: npm publish --provenance --access public --tag ${{ env.TAG }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
       shell: bash
       working-directory: ${{ inputs.path || '.' }}
 
-    - name: Setup node to publish to GitHub Packages
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22.4.x
-        registry-url: 'https://npm.pkg.github.com'
-        # Defaults to the user or organization that owns the workflow file
-        scope: '@revolist'
-
-    # Publish to GitHub Packages
-    - run: npm publish
+    - name: Publish to GitHub Packages
+      if: always()
+      run: npm publish --access public --tag ${{ env.TAG }} --registry https://npm.pkg.github.com --scope @revolist
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
       shell: bash
+      working-directory: ${{ inputs.path || '.' }}
           
