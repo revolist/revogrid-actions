@@ -18,9 +18,9 @@ runs:
   using: "composite"
   steps:
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
-        node-version: 22.12.x
+        node-version: 24
 
     - run: npm i
       shell: bash
@@ -39,9 +39,9 @@ runs:
       shell: bash
 
     - name: Setup Node JS environment for npm
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: 22.12.x
+        node-version: 24
         registry-url: 'https://registry.npmjs.org'
 
     - name: Publish to npm
@@ -55,9 +55,9 @@ runs:
 
     - name: Setup node to publish to GitHub Packages
       if: always()
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: 22.12.x
+        node-version: 24
         registry-url: 'https://npm.pkg.github.com'
         scope: '@revolist'
 
