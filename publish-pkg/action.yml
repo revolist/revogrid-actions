@@ -29,6 +29,7 @@ runs:
 
     - name: Update npm
       run: npm install -g npm@latest
+      shell: bash
 
     - run: npm i
       shell: bash
