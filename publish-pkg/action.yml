@@ -17,21 +17,54 @@ inputs:
 runs:
   using: "composite"
   steps:
-
     - uses: actions/setup-node@v6
       with:
         node-version: 24
 
-    - name: Debug npm token - whoami
-      run: npm whoami || echo "npm whoami failed"
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
-      shell: bash
+    - name: Setup Node JS environment for npm
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        registry-url: 'https://registry.npmjs.org'
 
-    - name: Install dependencies
-      run: npm i
+    - run: npm i
       shell: bash
 
     - name: Build
       run: npm run build
       shell: bash
+
+    - name: Determine tag for npm publish
+      run: |
+        if [[ "${GITHUB_REF}" == "refs/heads/next" ]]; then
+          echo "TAG=prerelease" >> $GITHUB_ENV
+        else
+          echo "TAG=latest" >> $GITHUB_ENV
+        fi
+      shell: bash
+
+    - name: Publish to npm
+      id: npm-publish
+      continue-on-error: true
+      run: npm publish --provenance --access public --tag ${{ env.TAG }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+      shell: bash
+      working-directory: ${{ inputs.path || '.' }}
+
+    - name: Setup node to publish to GitHub Packages
+      if: always()
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@revolist'
+
+    - name: Publish to GitHub Packages
+      if: always()
+      run: npm publish --access public --tag ${{ env.TAG }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.token }}
+      shell: bash
+      working-directory: ${{ inputs.path || '.' }}
+          
