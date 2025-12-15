@@ -22,9 +22,10 @@ runs:
       with:
         node-version: 24
 
-    - name: Clean npm auth for public install
-      run: |
-        npm config delete //registry.npmjs.org/:_authToken || true
+    - name: Debug npm token - whoami
+      run: npm whoami || echo "npm whoami failed"
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
       shell: bash
 
     - name: Install dependencies
