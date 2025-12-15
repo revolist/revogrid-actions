@@ -20,7 +20,7 @@ runs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 22.4.x
+        node-version: 22.12.x
 
     - run: npm i
       shell: bash
@@ -41,7 +41,7 @@ runs:
     - name: Setup Node JS environment for npm
       uses: actions/setup-node@v4
       with:
-        node-version: 22.4.x
+        node-version: 22.12.x
         registry-url: 'https://registry.npmjs.org'
 
     - name: Publish to npm
@@ -57,7 +57,7 @@ runs:
       if: always()
       uses: actions/setup-node@v4
       with:
-        node-version: 22.4.x
+        node-version: 22.12.x
         registry-url: 'https://npm.pkg.github.com'
         scope: '@revolist'
 
