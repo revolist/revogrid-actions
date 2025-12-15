@@ -25,6 +25,8 @@ runs:
 
     - run: npm i
       shell: bash
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
 
     - name: Build
       run: npm run build
