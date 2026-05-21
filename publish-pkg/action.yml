@@ -17,19 +17,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 24
-
-    - name: Setup Node JS environment for npm
+    - name: Setup Node to publish to npm Packages
       uses: actions/setup-node@v6
       with:
-        node-version: 24
-        registry-url: 'https://registry.npmjs.org'
-
-    - name: Update npm
-      run: npm install -g npm@latest
-      shell: bash
+        node-version: 24.x
+        registry-url: "https://registry.npmjs.org"
 
     - run: npm i
       shell: bash
@@ -51,8 +43,6 @@ runs:
       id: npm-publish
       continue-on-error: true
       run: npm publish --access public --tag ${{ env.TAG }}
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
       shell: bash
       working-directory: ${{ inputs.path || '.' }}
 
