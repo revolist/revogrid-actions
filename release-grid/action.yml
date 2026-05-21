@@ -72,7 +72,7 @@ runs:
       shell: bash
 
     - name: Publish to npm
-      run: npm publish --provenance --access public --tag ${{ steps.tag.outputs.TAG }}
+      run: npm publish --access public --tag ${{ steps.tag.outputs.TAG }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
       shell: bash
